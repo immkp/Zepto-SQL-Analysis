@@ -132,3 +132,24 @@ SUM(weightInGms * availableQuantity) AS total_weight
 FROM zepto
 GROUP BY category
 ORDER BY total_weight;
+
+-- 09.Top 3 most expensive products in each category
+WITH ranked_products AS (
+    SELECT category,
+           name,
+           mrp,
+           RANK() OVER(PARTITION BY category ORDER BY mrp DESC) AS rnk
+    FROM zepto
+)
+SELECT *
+FROM ranked_products
+WHERE rnk <= 3;
+
+--10. Category revenue ranking
+SELECT category,
+       SUM(discountedSellingPrice * availableQuantity) AS revenue,
+       RANK() OVER(
+           ORDER BY SUM(discountedSellingPrice * availableQuantity) DESC
+       ) AS revenue_rank
+FROM zepto
+GROUP BY category;
